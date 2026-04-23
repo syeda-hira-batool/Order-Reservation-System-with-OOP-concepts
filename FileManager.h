@@ -10,7 +10,8 @@ using namespace std;
 // ============================================================
 // CLASS: FileManager
 // ============================================================
-class FileManager {
+class FileManager
+{
 private:
     static const string ORDER_FILE;
     static const string TEMP_FILE;
@@ -18,14 +19,12 @@ private:
     FileManager() {}
 
 public:
-
-    static void saveCustomer(const Customer& c);
+    static void saveCustomer(const Customer &c);
     static bool searchOrder(int orderID);
     static bool cancelOrder(int orderID);
     static void displayAllOrders();
     static void displayLastOrder();
 
-    
     friend class Restaurant;
 };
 

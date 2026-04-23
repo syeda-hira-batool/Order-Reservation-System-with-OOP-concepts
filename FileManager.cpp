@@ -4,19 +4,20 @@
 using namespace std;
 
 const string FileManager::ORDER_FILE = "OrderFile.txt";
-const string FileManager::TEMP_FILE  = "temp.txt";
+const string FileManager::TEMP_FILE = "temp.txt";
 
-void FileManager::saveCustomer(const Customer& c) {
-    ofstream file(ORDER_FILE, ios::app);  
+void FileManager::saveCustomer(const Customer &c)
+{
+    ofstream file(ORDER_FILE, ios::app);
     if (!file.is_open())
         throw runtime_error("Cannot open " + ORDER_FILE + " for writing.");
 
-    file << "Name: "    << c.getName()  << "\n";
-    file << "Email: "   << c.getEmail() << "\n";
+    file << "Name: " << c.getName() << "\n";
+    file << "Email: " << c.getEmail() << "\n";
     file << "Phone: +92" << c.getPhone() << "\n";
     file << "OrderID: " << c.getOrder().getOrderID() << "\n";
 
-    for (const auto& item : c.getOrder().getItems())
+    for (const auto &item : c.getOrder().getItems())
         file << "Item: " << item.getName() << "\n";
 
     if (c.isDelivery())
@@ -27,9 +28,11 @@ void FileManager::saveCustomer(const Customer& c) {
     file.close();
 }
 
-bool FileManager::searchOrder(int orderID) {
+bool FileManager::searchOrder(int orderID)
+{
     ifstream file(ORDER_FILE);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cout << "No orders file found.\n";
         return false;
     }
@@ -39,21 +42,30 @@ bool FileManager::searchOrder(int orderID) {
     bool inBlock = false;
     int currentID = -1;
 
-    while (getline(file, line)) {
-        if (line.rfind("Name:", 0) == 0) {
+    while (getline(file, line))
+    {
+        if (line.rfind("Name:", 0) == 0)
+        {
             block = "";
             inBlock = true;
             currentID = -1;
         }
-        if (inBlock) block += line + "\n";
+        if (inBlock)
+            block += line + "\n";
 
-        if (line.rfind("OrderID:", 0) == 0) {
-            try {
+        if (line.rfind("OrderID:", 0) == 0)
+        {
+            try
+            {
                 currentID = stoi(line.substr(9));
-            } catch (...) {}
+            }
+            catch (...)
+            {
+            }
         }
 
-        if (line == "----" && currentID == orderID) {
+        if (line == "----" && currentID == orderID)
+        {
             cout << "============================================================\n";
             cout << " Order Found\n";
             cout << "============================================================\n";
@@ -64,15 +76,18 @@ bool FileManager::searchOrder(int orderID) {
     }
 
     file.close();
-    if (!found) cout << "Order ID " << orderID << " not found.\n";
+    if (!found)
+        cout << "Order ID " << orderID << " not found.\n";
     return found;
 }
 
-bool FileManager::cancelOrder(int orderID) {
+bool FileManager::cancelOrder(int orderID)
+{
     ifstream src(ORDER_FILE);
     ofstream tmp(TEMP_FILE);
 
-    if (!src.is_open() || !tmp.is_open()) {
+    if (!src.is_open() || !tmp.is_open())
+    {
         throw runtime_error("File error during cancellation.");
     }
 
@@ -82,29 +97,40 @@ bool FileManager::cancelOrder(int orderID) {
     vector<vector<string>> allBlocks;
     vector<string> current;
 
-    while (getline(src, line)) {
+    while (getline(src, line))
+    {
         current.push_back(line);
-        if (line == "----") {
+        if (line == "----")
+        {
             allBlocks.push_back(current);
             current.clear();
         }
     }
     src.close();
 
-    for (auto& blk : allBlocks) {
+    for (auto &blk : allBlocks)
+    {
         bool isTarget = false;
-        for (const auto& l : blk) {
-            if (l.rfind("OrderID:", 0) == 0) {
-                try {
-                    if (stoi(l.substr(9)) == orderID) {
+        for (const auto &l : blk)
+        {
+            if (l.rfind("OrderID:", 0) == 0)
+            {
+                try
+                {
+                    if (stoi(l.substr(9)) == orderID)
+                    {
                         isTarget = true;
                         found = true;
                     }
-                } catch (...) {}
+                }
+                catch (...)
+                {
+                }
             }
         }
-        if (!isTarget) {
-            for (const auto& l : blk)
+        if (!isTarget)
+        {
+            for (const auto &l : blk)
                 tmp << l << "\n";
         }
     }
@@ -121,9 +147,11 @@ bool FileManager::cancelOrder(int orderID) {
     return found;
 }
 
-void FileManager::displayLastOrder() {
+void FileManager::displayLastOrder()
+{
     ifstream file(ORDER_FILE);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cout << "No orders on record yet.\n";
         return;
     }
@@ -132,16 +160,19 @@ void FileManager::displayLastOrder() {
     vector<string> current;
     string line;
 
-    while (getline(file, line)) {
+    while (getline(file, line))
+    {
         current.push_back(line);
-        if (line == "----") {
+        if (line == "----")
+        {
             allBlocks.push_back(current);
             current.clear();
         }
     }
     file.close();
 
-    if (allBlocks.empty()) {
+    if (allBlocks.empty())
+    {
         cout << "No orders on record.\n";
         return;
     }
@@ -149,13 +180,15 @@ void FileManager::displayLastOrder() {
     cout << "============================================================\n";
     cout << " YOUR ORDER DETAILS\n";
     cout << "============================================================\n";
-    for (const auto& l : allBlocks.back())
+    for (const auto &l : allBlocks.back())
         cout << l << "\n";
 }
 
-void FileManager::displayAllOrders() {
+void FileManager::displayAllOrders()
+{
     ifstream file(ORDER_FILE);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cout << "No orders on record.\n";
         return;
     }

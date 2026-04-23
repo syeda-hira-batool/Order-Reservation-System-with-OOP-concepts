@@ -1,10 +1,8 @@
 #include "Restaurant.h"
 
-
-int main() {
+int main()
+{
     Restaurant restaurant("DAY 1 PALACE");
     restaurant.run();
     return 0;
 }
-
-

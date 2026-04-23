@@ -8,16 +8,16 @@ using namespace std;
 // ============================================================
 // CLASS: MenuItem
 // ============================================================
-class MenuItem {
+class MenuItem
+{
 private:
     int itemNumber;
     string name;
     int price;
 
 public:
-
     MenuItem();
-    MenuItem(int num, const string& name, int price);
+    MenuItem(int num, const string &name, int price);
 
     string getName() const;
     int getPrice() const;
@@ -25,9 +25,9 @@ public:
 
     void setPrice(int p);
 
-    bool operator==(const MenuItem& other) const;
+    bool operator==(const MenuItem &other) const;
 
-    friend ostream& operator<<(ostream& os, const MenuItem& item);
+    friend ostream &operator<<(ostream &os, const MenuItem &item);
 };
 
 #endif
