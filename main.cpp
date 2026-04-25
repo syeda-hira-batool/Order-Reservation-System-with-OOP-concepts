@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <cstdlib>
 #include <ctime>
 #include "OrderManager.h"
@@ -11,10 +12,13 @@ using namespace std;
 
 bool isValidName(const string &name)
 {
-    if (name.empty() || name.length() < 2) return false;
-    for (int i = 0; i < (int)name.size(); i++) {
+    if (name.empty() || name.length() < 2)
+        return false;
+    for (int i = 0; i < (int)name.size(); i++)
+    {
         char c = name[i];
-        if (!isalpha(c) && c != ' ' && c != '-' && c != '\'') return false;
+        if (!isalpha(c) && c != ' ' && c != '-' && c != '\'')
+            return false;
     }
     return true;
 }
@@ -22,19 +26,72 @@ bool isValidName(const string &name)
 bool isValidEmail(const string &email)
 {
     int atPos = email.find('@');
-    if (atPos == (int)string::npos || atPos == 0) return false;
+    if (atPos == (int)string::npos || atPos == 0)
+        return false;
     int dotPos = email.find('.', atPos);
-    if (dotPos == (int)string::npos || dotPos == atPos + 1) return false;
-    if (dotPos >= (int)email.length() - 1) return false;
-    for (int i = 0; i < (int)email.size(); i++) if (email[i] == ' ') return false;
+    if (dotPos == (int)string::npos || dotPos == atPos + 1)
+        return false;
+    if (dotPos >= (int)email.length() - 1)
+        return false;
+    for (int i = 0; i < (int)email.size(); i++)
+        if (email[i] == ' ')
+            return false;
     return true;
 }
 
 bool isValidPhone(const string &phone)
 {
     string digits;
-    for (int i = 0; i < (int)phone.size(); i++) if (isdigit(phone[i])) digits += phone[i];
+    for (int i = 0; i < (int)phone.size(); i++)
+        if (isdigit(phone[i]))
+            digits += phone[i];
     return digits.length() == 11;
+}
+
+// --- Duplicate Customer Check -------------------------------------------------
+
+bool isAlreadyRegistered(const string &email, const string &phone)
+{
+    ifstream file("OrderFile.txt");
+    if (!file)
+        return false; // no file yet = no existing customers
+
+    // Normalize phone: strip non-digits for comparison
+    string phoneDigits = "";
+    for (int i = 0; i < (int)phone.size(); i++)
+        if (isdigit(phone[i]))
+            phoneDigits += phone[i];
+
+    string line;
+    while (getline(file, line))
+    {
+        // Check email match
+        if (line.find("Email: ") == 0)
+        {
+            string storedEmail = line.substr(7);
+            if (storedEmail == email)
+            {
+                file.close();
+                return true;
+            }
+        }
+        // Check phone match (compare digits only)
+        if (line.find("Phone: ") == 0)
+        {
+            string storedRaw = line.substr(7);
+            string storedDigits = "";
+            for (int i = 0; i < (int)storedRaw.size(); i++)
+                if (isdigit(storedRaw[i]))
+                    storedDigits += storedRaw[i];
+            if (storedDigits == phoneDigits)
+            {
+                file.close();
+                return true;
+            }
+        }
+    }
+    file.close();
+    return false;
 }
 
 // --- Register Customer --------------------------------------------------------
@@ -54,22 +111,40 @@ Customer *registerCustomer()
     {
         cout << "  Enter your name  : ";
         getline(cin, name);
-        if (isValidName(name)) break;
+        if (isValidName(name))
+            break;
         cout << "  [!] Invalid name. Use letters only.\n";
     }
     while (true)
     {
         cout << "  Enter your email : ";
         getline(cin, email);
-        if (isValidEmail(email)) break;
+        if (isValidEmail(email))
+            break;
         cout << "  [!] Invalid email. Format: example@domain.com\n";
     }
     while (true)
     {
         cout << "  Enter your phone : ";
         getline(cin, phone);
-        if (isValidPhone(phone)) break;
+        if (isValidPhone(phone))
+            break;
         cout << "  [!] Invalid phone. Must be exactly 11 digits.\n";
+    }
+
+    // --- Duplicate check ---
+    if (isAlreadyRegistered(email, phone))
+    {
+        clearScreen();
+        cout << "============================================================\n";
+        cout << "                  REGISTRATION FAILED\n";
+        cout << "============================================================\n";
+        cout << "  [!] A customer with this email or phone\n";
+        cout << "      is already registered in our system.\n";
+        cout << "  Please use different contact details.\n";
+        cout << "============================================================\n";
+        pauseScreen();
+        return registerCustomer(); // ask again recursively
     }
 
     Customer *c = new Customer(name, email, phone);
@@ -121,9 +196,12 @@ DeliveryMethod *chooseDelivery(Customer *customer)
         int speedChoice;
         cin >> speedChoice;
 
-        if      (speedChoice == 1) dm = new PriorityDelivery(addr);
-        else if (speedChoice == 3) dm = new SaverDelivery(addr);
-        else                       dm = new StandardDelivery(addr);
+        if (speedChoice == 1)
+            dm = new PriorityDelivery(addr);
+        else if (speedChoice == 3)
+            dm = new SaverDelivery(addr);
+        else
+            dm = new StandardDelivery(addr);
 
         customer->setDeliveryAddress(addr);
     }
@@ -172,17 +250,25 @@ int main()
         // View order?
         clearScreen();
         cout << "\nView your full order? (1=Yes / 0=No): ";
-        int viewChoice; cin >> viewChoice;
-        if (viewChoice == 1) { clearScreen(); customer->displayOrder(); pauseScreen(); }
+        int viewChoice;
+        cin >> viewChoice;
+        if (viewChoice == 1)
+        {
+            clearScreen();
+            customer->displayOrder();
+            pauseScreen();
+        }
 
         // Search by ID?
         clearScreen();
         cout << "\nSearch an order by ID? (1=Yes / 0=No): ";
-        int searchChoice; cin >> searchChoice;
+        int searchChoice;
+        cin >> searchChoice;
         if (searchChoice == 1)
         {
             int sid;
-            cout << "Enter Order ID: "; cin >> sid;
+            cout << "Enter Order ID: ";
+            cin >> sid;
             clearScreen();
             OrderManager::searchOrder(sid);
             pauseScreen();
@@ -191,7 +277,8 @@ int main()
         // Change order?
         clearScreen();
         cout << "\nChange your order? (1=Yes / 0=No): ";
-        int changeChoice; cin >> changeChoice;
+        int changeChoice;
+        cin >> changeChoice;
         if (changeChoice == 1)
         {
             customer->changeOrder();
@@ -213,8 +300,13 @@ int main()
         // Cancel?
         clearScreen();
         cout << "\nCancel an order? (1=Yes / 0=No): ";
-        int cancelChoice; cin >> cancelChoice;
-        if (cancelChoice == 1) { customer->cancelOrder(); pauseScreen(); }
+        int cancelChoice;
+        cin >> cancelChoice;
+        if (cancelChoice == 1)
+        {
+            customer->cancelOrder();
+            pauseScreen();
+        }
 
         delete dm;
 
@@ -224,7 +316,7 @@ int main()
         cin >> again;
         cout << "\n";
 
-        delete customer;   // delete AFTER printing next-customer prompt so count stays correct
+        delete customer; // delete AFTER printing next-customer prompt so count stays correct
     }
 
     clearScreen();
