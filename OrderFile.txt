@@ -1,27 +1,11 @@
-
-Name: syeda hira batool
-Email: k25067@gmail.com
-Phone: 02038840561
+Name: syedahirabatool
+Email: syedahirabatool@gmail.com
+Phone: 03044056050
 OrderID: 1000
-Item: Beef Steak
-Collection: Takeaway / Pickup
----
-Name: syeda hira batool
-Email: k25067@gmail.com
-Phone: 02038840561
-OrderID: 1000
-Item: Beef Steak
-Collection: Home Delivery
-Address: house 13/ street 67
----
-Name: hira
-Email: hira@gmail.com
-Phone: 03044056787
-OrderID: 1000
-Item: Vegetable Chowmein
+Item: Chicken Chowmein
 Collection: Home Delivery
 Address: street 67
 ---
 Name: batool
 Email: batool@gmail.com
-Phone: 03445642464
+Phone: 03467652245
