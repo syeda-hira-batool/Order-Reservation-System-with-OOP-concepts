@@ -20,7 +20,8 @@ private:
     string deliveryAddress;
     bool isDelivery;
 
-    static int totalCustomers;
+    static int totalCustomers;    // tracks currently active (increments/decrements)
+    static int totalRegistered;    // total ever registered (never decrements)
     static int nextOrderID;
 
     void generateOrderID()
@@ -35,12 +36,14 @@ public:
     {
         generateOrderID();
         totalCustomers++;
+        totalRegistered++;
     }
 
     Customer() : Person(), orderID(0), itemCount(0), isDelivery(false)
     {
         generateOrderID();
         totalCustomers++;
+        totalRegistered++;
     }
 
     ~Customer()
@@ -153,15 +156,17 @@ public:
         ptr.close();
     }
 
-    static int getTotalCustomers() { return totalCustomers; }
+    static int getTotalCustomers()   { return totalCustomers;  }
+    static int getTotalRegistered()  { return totalRegistered; }
 
     friend class BillingSystem;
     friend void printCustomerBill(const Customer &c);
 };
 
 // --- Static Member Definitions ------------------------------------------------
-int Customer::totalCustomers = 0;
-int Customer::nextOrderID = 1000;
+int Customer::totalCustomers  = 0;
+int Customer::totalRegistered  = 0;
+int Customer::nextOrderID      = 1000;
 
 // --- Friend Function ----------------------------------------------------------
 void printCustomerBill(const Customer &c)

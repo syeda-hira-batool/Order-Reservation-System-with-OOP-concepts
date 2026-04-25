@@ -1,14 +1,27 @@
+
 Name: syeda hira batool
-Email: syedahirabatool@gmail.com
-Phone: 03044567232
+Email: k25067@gmail.com
+Phone: 02038840561
+OrderID: 1000
+Item: Beef Steak
+Collection: Takeaway / Pickup
+---
+Name: syeda hira batool
+Email: k25067@gmail.com
+Phone: 02038840561
+OrderID: 1000
+Item: Beef Steak
+Collection: Home Delivery
+Address: house 13/ street 67
+---
+Name: hira
+Email: hira@gmail.com
+Phone: 03044056787
 OrderID: 1000
 Item: Vegetable Chowmein
-Collection: Takeaway / Pickup
+Collection: Home Delivery
+Address: street 67
 ---
-Name: syeda hira batool
-Email: syedahirabatool@gmail.com
-Phone: 03044567232
-OrderID: 1000
-Item: Dynamite Prawns
-Collection: Takeaway / Pickup
----
+Name: batool
+Email: batool@gmail.com
+Phone: 03445642464

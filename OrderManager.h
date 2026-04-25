@@ -161,6 +161,7 @@ void Customer::placeOrder()
     cout << "  Enter item number to add  |  0 = Checkout  |  M = Full menu\n";
     cout << "============================================================\n\n";
 
+    // ── CART LOOP ─────────────────────────────────────────────
     string input;
     while (true)
     {
@@ -233,7 +234,6 @@ void Customer::placeOrder()
     cout << "  Subtotal: " << recursiveBillSum() << " RS\n";
     cout << "============================================================\n";
 
-    saveToFile();
     cout << "\n  Order placed!  Your Order ID: " << orderID << "\n";
     pauseScreen();
 }

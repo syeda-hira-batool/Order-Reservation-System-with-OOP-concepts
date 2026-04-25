@@ -7,7 +7,7 @@
 #include "Restaurant.h"
 using namespace std;
 
-// --- Validation functions ---------------------------------------------------------------
+// --- Validation ---------------------------------------------------------------
 
 bool isValidName(const string &name)
 {
@@ -89,7 +89,7 @@ DeliveryMethod *chooseDelivery(Customer *customer)
     cout << "                   COLLECTION METHOD\n";
     cout << "============================================================\n";
     cout << "  1. Home Delivery\n";
-    cout << "  2. Takeaway / Self Pickup \n";
+    cout << "  2. Takeaway / Self Pickup  (Free)\n";
     cout << "------------------------------------------------------------\n";
     cout << "  Enter choice: ";
     int collectionChoice;
@@ -217,19 +217,20 @@ int main()
         if (cancelChoice == 1) { customer->cancelOrder(); pauseScreen(); }
 
         delete dm;
-        delete customer;
 
         clearScreen();
         cout << "============================================================\n";
         cout << "  Next customer? (1=Yes / 0=Exit): ";
         cin >> again;
         cout << "\n";
+
+        delete customer;   // delete AFTER printing next-customer prompt so count stays correct
     }
 
     clearScreen();
     cout << "============================================================\n";
     cout << "          Thank you for using our Order System!\n";
-    cout << "  Final Customer Count: " << Customer::getTotalCustomers() << "\n";
+    cout << "  Total Customers Served: " << Customer::getTotalRegistered() << "\n";
     cout << "============================================================\n";
     pauseScreen();
 
