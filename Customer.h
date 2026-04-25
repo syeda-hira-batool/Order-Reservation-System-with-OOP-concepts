@@ -166,7 +166,7 @@ int Customer::nextOrderID = 1000;
 // --- Friend Function ----------------------------------------------------------
 void printCustomerBill(const Customer &c)
 {
-    cout << "\n[Friend Function] Bill Report for OrderID: " << c.orderID << "\n";
+    cout << "\nBill Report for OrderID: " << c.orderID << "\n";
     for (int i = 0; i < c.itemCount; i++)
     {
         cout << "  " << c.orderedItems[i]
