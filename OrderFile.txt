@@ -1,46 +1,14 @@
-Name: Soha Khan
-Email: sohakhan2415@gmail.com
-Phone: +92330225568278
-OrderID: 122710
-Item: Vegetable Chowmein
-Item: Chicken Chowmein
----
-Name: hira
-Email: hhh
-Phone: +923303235454
-OrderID: 129797
-Item: Vegetable Chowmein
+Name: syeda hira batool
+Email: syedahirabatool@gmail.com
+Phone: 03044567232
+OrderID: 1000
 Item: Vegetable Chowmein
 Collection: Takeaway / Pickup
 ---
-Name: hira
-Email: hhh
-Phone: +923303235454
-OrderID: 129797
-Item: Chicken Chowmein
-Item: Chicken Chowmein
-Collection: Takeaway / Pickup
----
-Name: hira
-Email: hhh
-Phone: +923303235454
-OrderID: 129797
-Item: Chicken Chowmein
-Item: Chicken Chowmein
-Collection: Home Delivery
-Address: abc
----
-Name: akhaajjs
-Email: asbgcs
-Phone: +922298672902
-OrderID: 113046
-Item: Beef Steak
-Collection: Takeaway / Pickup
----
-Name: akhaajjs
-Email: asbgcs
-Phone: +922298672902
-OrderID: 113046
-Item: Beef Steak
+Name: syeda hira batool
+Email: syedahirabatool@gmail.com
+Phone: 03044567232
+OrderID: 1000
+Item: Dynamite Prawns
 Collection: Takeaway / Pickup
 ---

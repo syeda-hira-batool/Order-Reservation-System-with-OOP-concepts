@@ -56,7 +56,6 @@ public:
     string getContactNumber() const { return contactNumber; }
 
     // Check if restaurant is currently open
-    // (simple string comparison for demo purposes)
     bool isOpen() const
     {
         return (openingTime != "" && closingTime != "");

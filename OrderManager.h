@@ -5,14 +5,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cstdio> // for remove(), rename()
+#include <cstdio>
+#include <sstream>
 using namespace std;
 
-// ============================================================
-//  CLASS: OrderManager
-//  PERSON 2 - Demonstrates: File I/O (Filing), Encapsulation,
-//             Static functions, Const functions
-// ============================================================
 class OrderManager
 {
 private:
@@ -20,53 +16,30 @@ private:
     static const string TEMP_FILE;
 
 public:
-    // ---------- FILE I/O (Filing - Week 13-14 topic) ----------
-
-    // Save a customer order to file
     static void saveOrder(const Customer &c)
     {
-        ofstream file(ORDER_FILE, ios::app);
-        if (!file)
-        {
-            cerr << "Error opening order file!\n";
-            return;
-        }
-        file << "Name: " << c.getName() << "\n";
-        file << "Email: " << c.getEmail() << "\n";
-        file << "Phone: " << c.getPhoneNumber() << "\n";
-        file << "OrderID: " << c.getOrderID() << "\n";
-
-        // We need access to items - use displayOrder logic via file
-        // (Customer saves itself, so call Customer's saveToFile)
+        ofstream file(ORDER_FILE.c_str(), ios::app);
+        if (!file) { cerr << "Error opening order file!\n"; return; }
+        file << "Name: "    << c.getName()        << "\n";
+        file << "Email: "   << c.getEmail()       << "\n";
+        file << "Phone: "   << c.getPhoneNumber() << "\n";
+        file << "OrderID: " << c.getOrderID()     << "\n";
         file.close();
-        // Actually delegate to customer's own save method
-        // (called separately from main)
     }
 
-    // Search order by ID from file
     static void searchOrder(int searchID)
     {
-        ifstream file(ORDER_FILE);
-        if (!file)
-        {
-            cout << "No orders found (file missing).\n";
-            return;
-        }
+        ifstream file(ORDER_FILE.c_str());
+        if (!file) { cout << "No orders found (file missing).\n"; return; }
 
         string line, block = "";
-        string searchStr = to_string(searchID);
+        ostringstream oss; oss << searchID; string searchStr = oss.str();
         bool found = false;
 
         while (getline(file, line))
         {
-            // Start of a new customer block
-            if (line.find("Name:") == 0)
-            {
-                block = "";
-            }
+            if (line.find("Name:") == 0) block = "";
             block += line + "\n";
-
-            // Check if this block has matching OrderID
             if (line.find("OrderID: " + searchStr) != string::npos)
             {
                 cout << "============================================================\n";
@@ -77,72 +50,39 @@ public:
                 break;
             }
         }
-
-        if (!found)
-        {
-            cout << "Order with ID " << searchID << " not found.\n";
-        }
+        if (!found) cout << "Order with ID " << searchID << " not found.\n";
         file.close();
     }
 
-    // Display all orders from file
     static void displayAllOrders()
     {
-        ifstream file(ORDER_FILE);
-        if (!file)
-        {
-            cout << "No saved orders found.\n";
-            return;
-        }
+        ifstream file(ORDER_FILE.c_str());
+        if (!file) { cout << "No saved orders found.\n"; return; }
         cout << "============================================================\n";
         cout << "                    ALL SAVED ORDERS\n";
         cout << "============================================================\n";
         string line;
-        while (getline(file, line))
-        {
-            cout << line << "\n";
-        }
+        while (getline(file, line)) cout << line << "\n";
         cout << "============================================================\n";
         file.close();
     }
 
-    // Cancel order by ID (rewrites file excluding cancelled order)
     static bool cancelOrder(int cancelID)
     {
-        ifstream file(ORDER_FILE);
-        ofstream temp(TEMP_FILE);
-        if (!file || !temp)
-        {
-            cerr << "File error during cancellation.\n";
-            return false;
-        }
+        ifstream file(ORDER_FILE.c_str());
+        ofstream temp(TEMP_FILE.c_str());
+        if (!file || !temp) { cerr << "File error during cancellation.\n"; return false; }
 
-        string line;
-        string cancelStr = to_string(cancelID);
-        bool found = false;
-        bool skip = false;
+        ostringstream oss2; oss2 << cancelID; string line, cancelStr = oss2.str();
+        bool found = false, skip = false;
 
         while (getline(file, line))
         {
-            if (line.find("Name:") == 0)
-            {
-                skip = false;
-            }
-
-            if (line.find("OrderID: " + cancelStr) != string::npos)
-            {
-                found = true;
-                skip = true;
-            }
-
-            if (!skip)
-            {
-                temp << line << "\n";
-            }
+            if (line.find("Name:") == 0)                               skip = false;
+            if (line.find("OrderID: " + cancelStr) != string::npos) { found = true; skip = true; }
+            if (!skip) temp << line << "\n";
         }
-
-        file.close();
-        temp.close();
+        file.close(); temp.close();
 
         if (found)
         {
@@ -158,43 +98,150 @@ public:
         return found;
     }
 };
+
 const string OrderManager::ORDER_FILE = "OrderFile.txt";
-const string OrderManager::TEMP_FILE = "temp.txt";
+const string OrderManager::TEMP_FILE  = "temp.txt";
+
+// ============================================================
+//  Customer::placeOrder  — full screen-flow with clearScreen
+// ============================================================
 void Customer::placeOrder()
 {
     Menu menu;
-    menu.displayMenu();
 
-    int itemCount_input;
-    cout << "How many items do you want to order? ";
-    cin >> itemCount_input;
+    // ── STEP 1: Ask if they want to see the menu ─────────────
+    clearScreen();
+    cout << "============================================================\n";
+    cout << "                   RESTAURANT ORDER\n";
+    cout << "============================================================\n";
+    cout << "\n  Would you like to view our menu before ordering?\n\n";
+    cout << "  1. Yes, show me the menu\n";
+    cout << "  2. No, I already know what I want\n";
+    cout << "------------------------------------------------------------\n";
+    cout << "  Enter choice: ";
+    int viewChoice;
+    cin >> viewChoice;
 
-    for (int i = 0; i < itemCount_input; i++)
+    if (viewChoice == 1)
     {
-        int choice;
-        cout << "Enter item number: ";
-        cin >> choice;
+        // ── STEP 2: Clear screen and show MENU ONLY ──────────
+        clearScreen();
+        menu.displayMenu();
+        cout << "\n";
+
+        while (true)
+        {
+            cout << "  Are you ready to place your order?\n";
+            cout << "  1. Yes, go to cart\n";
+            cout << "  2. No, let me read the menu again\n";
+            cout << "  Enter choice: ";
+            int readyChoice;
+            cin >> readyChoice;
+            if (readyChoice == 1) break;
+            clearScreen();
+            menu.displayMenu();
+            cout << "\n";
+        }
+    }
+
+    // ── STEP 3: Clear screen → ADD TO CART ───────────────────
+    clearScreen();
+    cout << "============================================================\n";
+    cout << "                       ADD TO CART\n";
+    cout << "============================================================\n";
+    cout << "  MENU REFERENCE:\n";
+    cout << "  ------------------------------------------------------------\n";
+    for (int i = 0; i < menu.getTotalItems(); i++)
+    {
+        cout << "  " << (i + 1) << ". "
+             << menu.getNameByNumber(i + 1)
+             << "  ---  " << menu.getPriceByNumber(i + 1) << " RS\n";
+    }
+    cout << "  ------------------------------------------------------------\n";
+    cout << "  Enter item number to add  |  0 = Checkout  |  M = Full menu\n";
+    cout << "============================================================\n\n";
+
+    string input;
+    while (true)
+    {
+        if (itemCount > 0)
+            cout << "  Cart (" << itemCount << " item"
+                 << (itemCount > 1 ? "s" : "") << ")  |  Total: "
+                 << recursiveBillSum() << " RS\n";
+
+        cout << "  >> Add to cart (number / 0 to checkout / M for menu): ";
+        cin >> input;
+
+        // M = view full menu then return to cart
+        if (input == "M" || input == "m")
+        {
+            clearScreen();
+            menu.displayMenu();
+            pauseScreen();
+            clearScreen();
+            cout << "============================================================\n";
+            cout << "                       ADD TO CART\n";
+            cout << "============================================================\n";
+            cout << "  MENU REFERENCE:\n";
+            cout << "  ------------------------------------------------------------\n";
+            for (int i = 0; i < menu.getTotalItems(); i++)
+            {
+                cout << "  " << (i + 1) << ". "
+                     << menu.getNameByNumber(i + 1)
+                     << "  ---  " << menu.getPriceByNumber(i + 1) << " RS\n";
+            }
+            cout << "  ------------------------------------------------------------\n";
+            cout << "  Enter item number to add  |  0 = Checkout  |  M = Full menu\n";
+            cout << "============================================================\n\n";
+            continue;
+        }
+
+        // Parse number
+        int choice = 0;
+        bool isNum = true;
+        for (int i = 0; i < (int)input.size(); i++)
+            if (input[i] < '0' || input[i] > '9') { isNum = false; break; }
+        if (isNum && !input.empty()) choice = atoi(input.c_str());
+
+        if (choice == 0)
+        {
+            if (itemCount == 0) { cout << "  [!] Cart is empty — add at least one item.\n\n"; continue; }
+            break;
+        }
 
         int price = menu.getPriceByNumber(choice);
         if (price == -1)
         {
-            cout << "Invalid item number! Skipping.\n";
+            cout << "  [!] Invalid number. Choose 1-" << menu.getTotalItems() << ".\n\n";
             continue;
         }
         addItem(menu.getNameByNumber(choice), price);
-        cout << "  Added: " << menu.getNameByNumber(choice)
-             << " (" << price << " RS)\n";
+        cout << "  [+] Added: " << menu.getNameByNumber(choice)
+             << "  (" << price << " RS)\n\n";
     }
 
+    // ── STEP 4: Confirm cart ──────────────────────────────────
+    clearScreen();
+    cout << "============================================================\n";
+    cout << "                    CART CONFIRMED\n";
+    cout << "============================================================\n";
+    for (int i = 0; i < itemCount; i++)
+        cout << "  " << (i + 1) << ". " << orderedItems[i]
+             << "  ---  " << orderedPrices[i] << " RS\n";
+    cout << "------------------------------------------------------------\n";
+    cout << "  Items   : " << itemCount << "\n";
+    cout << "  Subtotal: " << recursiveBillSum() << " RS\n";
+    cout << "============================================================\n";
+
     saveToFile();
-    cout << "Order placed successfully! Your Order ID: " << orderID << "\n";
+    cout << "\n  Order placed!  Your Order ID: " << orderID << "\n";
+    pauseScreen();
 }
 
 void Customer::cancelOrder()
 {
     cout << "Enter Order ID to cancel: ";
-    int id;
-    cin >> id;
+    int id; cin >> id;
     OrderManager::cancelOrder(id);
 }
 
@@ -202,7 +249,6 @@ void Customer::changeOrder()
 {
     cout << "Changing order clears your current items.\n";
     itemCount = 0;
-    cout << "Re-ordering...\n";
     placeOrder();
 }
 

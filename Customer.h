@@ -43,16 +43,16 @@ public:
         totalCustomers++;
     }
 
-    ~Customer() override
+    ~Customer()
     {
         totalCustomers--;
     }
 
-    void placeOrder() override;
-    void cancelOrder() override;
-    void changeOrder() override;
+    void placeOrder();
+    void cancelOrder();
+    void changeOrder();
 
-    void displayInfo() const override
+    void displayInfo() const
     {
         cout << "============================================================\n";
         cout << "                   CUSTOMER INFORMATION\n";
@@ -65,7 +65,7 @@ public:
         cout << "============================================================\n";
     }
 
-    string getRole() const override { return "Customer"; }
+    string getRole() const { return "Customer"; }
 
     int getOrderID() const { return orderID; }
     int getItemCount() const { return itemCount; }
