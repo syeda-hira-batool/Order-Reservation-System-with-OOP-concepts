@@ -9,3 +9,39 @@ Address: street 67
 Name: batool
 Email: batool@gmail.com
 Phone: 03467652245
+Name: hira batool
+Email: hirabatool@gmail.com
+Phone: 03022045473
+OrderID: 1001
+Item: Chicken Chowmein
+Collection: Home Delivery
+Address: street 67
+---
+Name: tehreem
+Email: tehreem67@gmail.com
+Phone: 03022045868
+Name: soha
+Email: soha@gmail.com
+Phone: 03022846718
+OrderID: 1003
+Item: Vegetable Chowmein
+Collection: Takeaway / Pickup
+---
+Name: hira
+Email: hira@gmail.com
+Phone: 03055738261
+OrderID: 1004
+Item: Kung Pao Chicken
+Collection: Takeaway / Pickup
+---
+Name: Tehreem Anwar
+Email: treem@67.com
+Phone: 03676767676
+Name: sarim
+Email: sarim@gmail.com
+Phone: 03044057827
+OrderID: 1005
+Item: Vegetable Chowmein
+Item: Chicken Chowmein
+Collection: Takeaway / Pickup
+---

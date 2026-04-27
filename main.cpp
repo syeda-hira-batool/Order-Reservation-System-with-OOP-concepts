@@ -105,7 +105,8 @@ Customer *registerCustomer()
     cout << "                   CUSTOMER REGISTRATION\n";
     cout << "============================================================\n";
 
-    cin.ignore();
+    // Flush any leftover newline from prior cin >> before using getline
+    if (cin.peek() == '\n') cin.ignore();
 
     while (true)
     {
@@ -175,7 +176,7 @@ DeliveryMethod *chooseDelivery(Customer *customer)
     if (collectionChoice == 1)
     {
         string addr;
-        cin.ignore();
+        if (cin.peek() == '\n') cin.ignore();
         cout << "\n  Enter delivery address: ";
         getline(cin, addr);
 

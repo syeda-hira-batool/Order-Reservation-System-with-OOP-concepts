@@ -24,7 +24,9 @@ inline void clearScreen()
 inline void pauseScreen()
 {
     cout << "\n  Press ENTER to continue...";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    // Flush any leftover '\n' from previous cin >>, then wait for one key
+    if (cin.rdbuf()->in_avail() > 0 || cin.peek() == '\n')
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
 

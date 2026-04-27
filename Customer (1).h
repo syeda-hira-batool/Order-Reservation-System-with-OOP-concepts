@@ -1,6 +1,6 @@
 #ifndef CUSTOMER_H
 #define CUSTOMER_H
-
+ 
 #include "Person.h"
 #include "Menu.h"
 #include <iostream>
@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <ctime>
 using namespace std;
-
+ 
 class Customer : public Person, public IOrderable
 {
 private:
@@ -19,16 +19,34 @@ private:
     int itemCount;
     string deliveryAddress;
     bool isDelivery;
-
+ 
     static int totalCustomers;    // tracks currently active (increments/decrements)
     static int totalRegistered;    // total ever registered (never decrements)
     static int nextOrderID;
-
+ 
+    static int readLastOrderIDFromFile()
+    {
+        ifstream f("OrderFile.txt");
+        if (!f) return 1000; // file doesn't exist yet
+        int lastID = 999;
+        string line;
+        while (getline(f, line))
+        {
+            if (line.find("OrderID: ") == 0)
+            {
+                int id = atoi(line.substr(9).c_str());
+                if (id > lastID) lastID = id;
+            }
+        }
+        f.close();
+        return lastID + 1; // next available ID
+    }
+ 
     void generateOrderID()
     {
         orderID = nextOrderID++;
     }
-
+ 
 public:
     Customer(const string &n, const string &e, string ph)
         : Person(n, e, ph),
@@ -38,23 +56,23 @@ public:
         totalCustomers++;
         totalRegistered++;
     }
-
+ 
     Customer() : Person(), orderID(0), itemCount(0), isDelivery(false)
     {
         generateOrderID();
         totalCustomers++;
         totalRegistered++;
     }
-
+ 
     ~Customer()
     {
         totalCustomers--;
     }
-
+ 
     void placeOrder();
     void cancelOrder();
     void changeOrder();
-
+ 
     void displayInfo() const
     {
         cout << "============================================================\n";
@@ -67,12 +85,12 @@ public:
         cout << "  Role     : " << getRole() << "\n";
         cout << "============================================================\n";
     }
-
+ 
     string getRole() const { return "Customer"; }
-
+ 
     int getOrderID() const { return orderID; }
     int getItemCount() const { return itemCount; }
-
+ 
     void addItem(const string &itemName, int price)
     {
         if (itemCount < 20)
@@ -83,22 +101,34 @@ public:
         }
     }
 
+    bool removeItem(int index)   // 0-based index
+    {
+        if (index < 0 || index >= itemCount) return false;
+        for (int i = index; i < itemCount - 1; i++)
+        {
+            orderedItems[i]  = orderedItems[i + 1];
+            orderedPrices[i] = orderedPrices[i + 1];
+        }
+        itemCount--;
+        return true;
+    }
+ 
     void setDeliveryAddress(const string &addr)
     {
         deliveryAddress = addr;
         isDelivery = true;
     }
-
+ 
     string getDeliveryAddress() const { return deliveryAddress; }
     bool getIsDelivery() const { return isDelivery; }
-
+ 
     int recursiveBillSum(int index = 0) const
     {
         if (index == itemCount)
             return 0;
         return orderedPrices[index] + recursiveBillSum(index + 1);
     }
-
+ 
     void displayOrder() const
     {
         cout << "============================================================\n";
@@ -113,11 +143,15 @@ public:
         }
         if (itemCount == 0)
             cout << "  (No items ordered yet)\n";
-
+ 
         if (isDelivery)
         {
             cout << "  Collection      : Home Delivery\n";
             cout << "  Address         : " << deliveryAddress << "\n";
+        }
+        else if (deliveryAddress.empty())
+        {
+            cout << "  Collection      : Not selected yet\n";
         }
         else
         {
@@ -125,7 +159,7 @@ public:
         }
         cout << "============================================================\n";
     }
-
+ 
     void saveToFile() const
     {
         ofstream ptr("OrderFile.txt", ios::app);
@@ -134,7 +168,7 @@ public:
             cerr << "Error opening file!\n";
             return;
         }
-
+ 
         ptr << "Name: " << name << "\n";
         ptr << "Email: " << email << "\n";
         ptr << "Phone: " << phoneNumber << "\n";
@@ -155,19 +189,19 @@ public:
         ptr << "---\n";
         ptr.close();
     }
-
+ 
     static int getTotalCustomers()   { return totalCustomers;  }
     static int getTotalRegistered()  { return totalRegistered; }
-
+ 
     friend class BillingSystem;
     friend void printCustomerBill(const Customer &c);
 };
-
+ 
 // --- Static Member Definitions ------------------------------------------------
 int Customer::totalCustomers  = 0;
 int Customer::totalRegistered  = 0;
-int Customer::nextOrderID      = 1000;
-
+int Customer::nextOrderID      = Customer::readLastOrderIDFromFile();
+ 
 // --- Friend Function ----------------------------------------------------------
 void printCustomerBill(const Customer &c)
 {
@@ -179,5 +213,5 @@ void printCustomerBill(const Customer &c)
     }
     cout << "  Total: " << c.recursiveBillSum() << " RS\n";
 }
-
+ 
 #endif

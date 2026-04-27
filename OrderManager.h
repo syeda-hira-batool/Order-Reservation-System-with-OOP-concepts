@@ -103,13 +103,13 @@ const string OrderManager::ORDER_FILE = "OrderFile.txt";
 const string OrderManager::TEMP_FILE  = "temp.txt";
 
 // ============================================================
-//  Customer::placeOrder  — full screen-flow with clearScreen
+//  Customer::placeOrder full screen-flow with clearScreen
 // ============================================================
 void Customer::placeOrder()
 {
     Menu menu;
 
-    // ── STEP 1: Ask if they want to see the menu ─────────────
+    //  STEP 1: Ask if they want to see the menu 
     clearScreen();
     cout << "============================================================\n";
     cout << "                   RESTAURANT ORDER\n";
@@ -124,7 +124,7 @@ void Customer::placeOrder()
 
     if (viewChoice == 1)
     {
-        // ── STEP 2: Clear screen and show MENU ONLY ──────────
+        // STEP 2: Clear screen and show MENU ONLY 
         clearScreen();
         menu.displayMenu();
         cout << "\n";
@@ -144,7 +144,7 @@ void Customer::placeOrder()
         }
     }
 
-    // ── STEP 3: Clear screen → ADD TO CART ───────────────────
+    // STEP 3: Clear screen → ADD TO CART 
     clearScreen();
     cout << "============================================================\n";
     cout << "                       ADD TO CART\n";
@@ -161,7 +161,7 @@ void Customer::placeOrder()
     cout << "  Enter item number to add  |  0 = Checkout  |  M = Full menu\n";
     cout << "============================================================\n\n";
 
-    // ── CART LOOP ─────────────────────────────────────────────
+    // CART LOOP 
     string input;
     while (true)
     {
@@ -206,7 +206,7 @@ void Customer::placeOrder()
 
         if (choice == 0)
         {
-            if (itemCount == 0) { cout << "  [!] Cart is empty — add at least one item.\n\n"; continue; }
+            if (itemCount == 0) { cout << "  [!] Cart is empty add at least one item.\n\n"; continue; }
             break;
         }
 
@@ -221,7 +221,7 @@ void Customer::placeOrder()
              << "  (" << price << " RS)\n\n";
     }
 
-    // ── STEP 4: Confirm cart ──────────────────────────────────
+    // STEP 4: Confirm cart 
     clearScreen();
     cout << "============================================================\n";
     cout << "                    CART CONFIRMED\n";
@@ -247,9 +247,129 @@ void Customer::cancelOrder()
 
 void Customer::changeOrder()
 {
-    cout << "Changing order clears your current items.\n";
-    itemCount = 0;
-    placeOrder();
+    // Ask: complete redo or modify 
+    clearScreen();
+    cout << "============================================================\n";
+    cout << "                     CHANGE ORDER\n";
+    cout << "============================================================\n";
+    cout << "  How would you like to change your order?\n\n";
+    cout << "  1. Complete Redo   clear everything and start fresh\n";
+    cout << "  2. Modify           add or remove items from current cart\n";
+    cout << "------------------------------------------------------------\n";
+    cout << "  Enter choice: ";
+    int changeType;
+    cin >> changeType;
+
+    if (changeType == 1)
+    {
+        // COMPLETE REDO 
+        itemCount = 0;
+        placeOrder();
+        return;
+    }
+
+    // MODIFY MODE
+    Menu menu;
+    string input;
+
+    while (true)
+    {
+        clearScreen();
+        cout << "============================================================\n";
+        cout << "                     MODIFY ORDER\n";
+        cout << "============================================================\n";
+
+        // Show current cart
+        if (itemCount == 0)
+        {
+            cout << "  (Cart is empty)\n";
+        }
+        else
+        {
+            cout << "  Current cart:\n";
+            for (int i = 0; i < itemCount; i++)
+                cout << "  [" << (i + 1) << "] " << orderedItems[i]
+                     << "  ---  " << orderedPrices[i] << " RS\n";
+            cout << "  ------------------------------------------------------------\n";
+            cout << "  Subtotal: " << recursiveBillSum() << " RS\n";
+        }
+
+        cout << "============================================================\n";
+        cout << "  MENU REFERENCE:\n";
+        cout << "  ------------------------------------------------------------\n";
+        for (int i = 0; i < menu.getTotalItems(); i++)
+            cout << "  " << (i + 1) << ". "
+                 << menu.getNameByNumber(i + 1)
+                 << "  ---  " << menu.getPriceByNumber(i + 1) << " RS\n";
+        cout << "============================================================\n";
+        cout << "  A<n> = Add item n     (e.g. A3)\n";
+        cout << "  R<n> = Remove cart item n  (e.g. R2)\n";
+        cout << "  0    = Done\n";
+        cout << "------------------------------------------------------------\n";
+        cout << "  >> ";
+        cin >> input;
+
+        if (input == "0") break;
+
+        char cmd = toupper(input[0]);
+        int  num = (input.size() > 1) ? atoi(input.substr(1).c_str()) : 0;
+
+        if (cmd == 'A')
+        {
+            int price = menu.getPriceByNumber(num);
+            if (price == -1)
+                cout << "  [!] Invalid item number. Press ENTER.\n", cin.ignore(), cin.get();
+            else
+            {
+                addItem(menu.getNameByNumber(num), price);
+                cout << "  [+] Added: " << menu.getNameByNumber(num)
+                     << "  (" << price << " RS)";
+                cout << "\n  Press ENTER to continue..."; cin.ignore(); cin.get();
+            }
+        }
+        else if (cmd == 'R')
+        {
+            if (num < 1 || num > itemCount)
+                cout << "  [!] Invalid cart index. Press ENTER.\n", cin.ignore(), cin.get();
+            else
+            {
+                string removed = orderedItems[num - 1];
+                removeItem(num - 1);
+                cout << "  [-] Removed: " << removed;
+                cout << "\n  Press ENTER to continue..."; cin.ignore(); cin.get();
+            }
+        }
+        else
+        {
+            cout << "  [!] Unknown command. Use A<n>, R<n>, or 0.";
+            cout << "\n  Press ENTER to continue..."; cin.ignore(); cin.get();
+        }
+    }
+
+    //  Guard: if cart ended up empty, force at least one item ──
+    if (itemCount == 0)
+    {
+        clearScreen();
+        cout << "  [!] Cart is empty after modifications.\n";
+        cout << "      You must have at least one item. Restarting order...\n";
+        pauseScreen();
+        placeOrder();
+        return;
+    }
+
+    //  Confirm final cart 
+    clearScreen();
+    cout << "============================================================\n";
+    cout << "                  ORDER UPDATED\n";
+    cout << "============================================================\n";
+    for (int i = 0; i < itemCount; i++)
+        cout << "  " << (i + 1) << ". " << orderedItems[i]
+             << "  ---  " << orderedPrices[i] << " RS\n";
+    cout << "------------------------------------------------------------\n";
+    cout << "  Items   : " << itemCount << "\n";
+    cout << "  Subtotal: " << recursiveBillSum() << " RS\n";
+    cout << "============================================================\n";
+    pauseScreen();
 }
 
 #endif
