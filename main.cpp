@@ -267,12 +267,45 @@ int main()
         cin >> searchChoice;
         if (searchChoice == 1)
         {
-            int sid;
-            cout << "Enter Order ID: ";
-            cin >> sid;
-            clearScreen();
-            OrderManager::searchOrder(sid);
-            pauseScreen();
+            while (true)
+            {
+                int sid;
+                cout << "Enter Order ID: ";
+                cin >> sid;
+                clearScreen();
+
+                // Check if the ID actually exists before calling searchOrder
+                ifstream checkFile("OrderFile.txt");
+                bool found = false;
+                if (checkFile)
+                {
+                    ostringstream oss; oss << sid;
+                    string checkLine;
+                    while (getline(checkFile, checkLine))
+                    {
+                        if (checkLine.find("OrderID: " + oss.str()) != string::npos)
+                        { found = true; break; }
+                    }
+                    checkFile.close();
+                }
+
+                OrderManager::searchOrder(sid);
+
+                if (found)
+                {
+                    pauseScreen();
+                    break;
+                }
+
+                // ID not found — ask whether to retry or give up
+                cout << "\n  [!] Please try again with a valid Order ID.\n";
+                cout << "  Enter 0 to cancel search, or press ENTER to retry: ";
+                string retry;
+                if (cin.peek() == '\n') cin.ignore();
+                getline(cin, retry);
+                if (retry == "0") break;
+                clearScreen();
+            }
         }
 
         // Change order?
